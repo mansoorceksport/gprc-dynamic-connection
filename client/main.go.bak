@@ -1,0 +1,36 @@
+package main
+
+import (
+	"context"
+	"log"
+	"log/slog"
+	"time"
+
+	pb "github.com/mansoorceksport/gprc-dynamic-connection/pb"
+	"google.golang.org/grpc"
+)
+
+func main() {
+	slog.Info("starting client")
+	conn, err := grpc.Dial(
+		"dns:///b-service.default.svc.cluster.local:50051",
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"round_robin"}`),
+		grpc.WithInsecure(),
+	)
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+
+	client := pb.NewEchoClient(conn)
+
+	for i := 0; i < 10000000; i++ {
+		resp, err := client.SayHello(context.Background(), &pb.EchoRequest{Name: "Mansoor"})
+		if err != nil {
+			log.Printf("Error calling SayHello: %v", err)
+			continue
+		}
+		log.Printf("[A] Response: %s", resp.Message)
+		time.Sleep(2 * time.Second)
+	}
+}

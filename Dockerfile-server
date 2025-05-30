@@ -1,0 +1,37 @@
+FROM golang:1.24.3-alpine3.21 AS builder
+LABEL authors="Mansoor Riazuddin"
+
+
+RUN apk update
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the Go module files and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of the application code
+COPY server ./server
+COPY pb ./pb
+
+# Build the application
+#RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app .
+RUN cd server && CGO_ENABLED=0 go build -a -ldflags="-s -w" -installsuffix cgo -o ../app .
+
+#RUN upx --ultra-brute -qq app && upx -t app
+#RUN upx --best -qq app && upx -t app
+# Create a minimal production image
+FROM alpine:3.14
+
+# Set the working directory inside the container
+WORKDIR /root/
+
+# Copy the built binary from the builder development
+COPY --from=builder /app/app .
+
+# Expose the port your application listens on
+EXPOSE 9000
+
+# Run the application
+CMD ["./app"]

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: b
+  template:
+    metadata:
+      labels:
+        app: b
+    spec:
+      containers:
+        - name: b
+          image: ceksport/gdc-server:1.0
+          ports:
+            - containerPort: 50051
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: b-service
+spec:
+  clusterIP: None  # 👈 HEADLESS mode
+  selector:
+    app: b
+  ports:
+    - port: 50051
+      targetPort: 50051

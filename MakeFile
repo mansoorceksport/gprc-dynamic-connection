@@ -1,0 +1,3 @@
+protoc:
+	protoc --go_out=pb --proto_path=pb pb/hello.proto
+	protoc --go-grpc_out=require_unimplemented_servers=false:pb --proto_path=pb pb/hello.proto
