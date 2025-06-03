@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: a
-          image: ceksport/client-gdc:1.2
+          image: ceksport/client-gdc:1.5
           env:
             - name: GRPC_GO_RESOLVER_DNS_RESOLVER_REFRESH_RATE
               value: "10s"
